@@ -11,8 +11,8 @@ import Laboratory2.service.Service;
 import Laboratory2.domain.Student;
 import org.junit.After;
 import Laboratory2.validation.ValidationException;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+
+import static org.junit.Assert.*;
 
 public class StudentTest {
     private StudentValidator studentValidator = new StudentValidator();
@@ -21,39 +21,84 @@ public class StudentTest {
     private String filenameTema = "fisiere/Teme.xml";
     private String filenameNota = "fisiere/Note.xml";
 
-    StudentXMLRepo studentXMLRepository = new StudentXMLRepo(filenameStudent);
-    TemaXMLRepo temaXMLRepository = new TemaXMLRepo(filenameTema);
-    NotaValidator notaValidator = new NotaValidator(studentXMLRepository, temaXMLRepository);
-    NotaXMLRepo notaXMLRepository = new NotaXMLRepo(filenameNota);
+    private StudentXMLRepo studentXMLRepository = new StudentXMLRepo(filenameStudent);
+    private TemaXMLRepo temaXMLRepository = new TemaXMLRepo(filenameTema);
+    private NotaValidator notaValidator = new NotaValidator(studentXMLRepository, temaXMLRepository);
+    private NotaXMLRepo notaXMLRepository = new NotaXMLRepo(filenameNota);
     private Service serviceTest = new Service(studentXMLRepository, studentValidator, temaXMLRepository, temaValidator, notaXMLRepository, notaValidator);
 
-    private int getSizeOfIterable(Iterable<Student> arr) {
-        int cnt = 0;
-        for (Student s : arr) {
-            cnt++;
-        }
-        return cnt;
-    }
-
     @Test
-    public void addStudentCorrect() {
-        Student newStudent = new Student("1000", "Andreea", 921, "aaa@scs.com");
-        assertEquals(6, getSizeOfIterable(serviceTest.getAllStudenti()));
-        serviceTest.addStudent(newStudent);
-        assertEquals(7, getSizeOfIterable(serviceTest.getAllStudenti()));
+    public void addStudentValid() {
+        Student newStudent = new Student("100", "maria", 935, "maria@scs.com");
+        assertNull(serviceTest.findStudent("100"));
+        Student result = serviceTest.addStudent(newStudent);
+        assertEquals(newStudent, serviceTest.findStudent("100"));
+        assertNull(result);
     }
 
     @Test(expected = ValidationException.class)
-    public void addStudentIncorrect() {
-        Student newStudent = new Student("", "Andreea", 921, "aaa@scs.com");
-        assertEquals(6, getSizeOfIterable(serviceTest.getAllStudenti()));
+    public void addStudentInvalidId() {
+        Student newStudent = new Student("", "maria", 935, "maria@scs.com");
         serviceTest.addStudent(newStudent);
-        assertEquals(6, getSizeOfIterable(serviceTest.getAllStudenti()));
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addStudentNullId() {
+        Student newStudent = new Student(null, "maria", 935, "maria@scs.com");
+        serviceTest.addStudent(newStudent);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addStudentInvalidName() {
+        Student newStudent = new Student("100", "", 935, "maria@scs.com");
+        serviceTest.addStudent(newStudent);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addStudentNullName() {
+        Student newStudent = new Student("100", null, 935, "maria@scs.com");
+        serviceTest.addStudent(newStudent);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addStudentInvalidGroup() {
+        Student newStudent = new Student("100", "maria", -1, "maria@scs.com");
+        serviceTest.addStudent(newStudent);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addStudentInvalidEmail() {
+        Student newStudent = new Student("100", "maria", 935, "");
+        serviceTest.addStudent(newStudent);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addStudentNullEmail() {
+        Student newStudent = new Student("100", "maria", 935, null);
+        serviceTest.addStudent(newStudent);
+    }
+
+    @Test
+    public void addStudentAlreadyExists() {
+        Student newStudent = new Student("100", "maria", 935, "maria@scs.com");
+        serviceTest.addStudent(newStudent);
+        Student result = serviceTest.addStudent(newStudent);
+        assertEquals(newStudent, serviceTest.findStudent("100"));
+        assertEquals(newStudent, result);
+    }
+
+    @Test
+    public void addStudentBoundaryValues() {
+        Student newStudent = new Student("3", "m", 0, "a");
+        Student result = serviceTest.addStudent(newStudent);
+        assertEquals(newStudent, serviceTest.findStudent("3"));
+        assertNull(result);
     }
 
     @After
     public void after() {
-        serviceTest.deleteStudent("1000");
+        serviceTest.deleteStudent("100");
+        serviceTest.deleteStudent("3");
 
     }
 }
