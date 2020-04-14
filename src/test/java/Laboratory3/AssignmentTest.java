@@ -28,13 +28,6 @@ public class AssignmentTest {
     NotaXMLRepo notaXMLRepository = new NotaXMLRepo(filenameNota);
     private Service serviceTest = new Service(studentXMLRepository, studentValidator, temaXMLRepository, temaValidator, notaXMLRepository, notaValidator);
 
-    private int getSizeOfIterable(Iterable< Student > arr) {
-        int cnt = 0;
-        for (Student s : arr) {
-            cnt++;
-        }
-        return cnt;
-    }
     @Test
     public void addAssignmentCorrect(){
         Tema newTema=new Tema("122","Tema noua",14,13);
@@ -49,6 +42,54 @@ public class AssignmentTest {
         Tema newTema=new Tema("","Tema noua",14,13);
         serviceTest.addTema(newTema);
     }
+
+    @Test
+    public void addAssignmentExistent(){
+        Tema newTema=new Tema("1","Tema noua",14,13);
+
+        serviceTest.addTema(newTema);
+
+    }
+
+
+    @Test(expected = ValidationException.class)
+    public void addAssignmentNullId(){
+        Tema newTema=new Tema(null,"Tema noua",14,13);
+        serviceTest.addTema(newTema);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addAssignmentEmptyDescription(){
+        Tema newTema=new Tema("455657","",14,13);
+        serviceTest.addTema(newTema);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addAssignmentInvalidDeadlineLess(){
+        Tema newTema=new Tema("455657","O tema obisnuita",0,13);
+        serviceTest.addTema(newTema);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addAssignmentInvalidDeadlineMore(){
+        Tema newTema=new Tema("455657","O tema obisnuita",15,13);
+        serviceTest.addTema(newTema);
+    }
+
+    @Test(expected = ValidationException.class)
+    public void addAssignmentInvalidPrimireLess(){
+        Tema newTema=new Tema("455657","O tema obisnuita",8,0);
+        serviceTest.addTema(newTema);
+    }
+
+
+    @Test(expected = ValidationException.class)
+    public void addAssignmentInvalidPrimireMore(){
+        Tema newTema=new Tema("455657","O tema obisnuita",8,15);
+        serviceTest.addTema(newTema);
+    }
+
+
 
     @After
     public void deleteAdded(){
