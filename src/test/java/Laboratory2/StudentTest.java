@@ -28,7 +28,7 @@ public class StudentTest {
     private Service serviceTest = new Service(studentXMLRepository, studentValidator, temaXMLRepository, temaValidator, notaXMLRepository, notaValidator);
 
     @Test
-    public void addStudentValid() {
+    public void addStudentCorrect() {
         Student newStudent = new Student("100", "maria", 935, "maria@scs.com");
         assertNull(serviceTest.findStudent("100"));
         Student result = serviceTest.addStudent(newStudent);
@@ -36,8 +36,9 @@ public class StudentTest {
         assertNull(result);
     }
 
+    // invalid id
     @Test(expected = ValidationException.class)
-    public void addStudentInvalidId() {
+    public void addStudentIncorrect() {
         Student newStudent = new Student("", "maria", 935, "maria@scs.com");
         serviceTest.addStudent(newStudent);
     }
